@@ -192,6 +192,20 @@ while (true)
                 audioFrame.Dispose();
 
             decoder.Seek(position);
+
+            // 丢掉不是当前时间的
+            while (true)
+            {
+                using var frame = decoder.GetNextFrame();
+                if (frame is null)
+                    break;
+                if (frame.StartTime >= position)
+                {
+                    position = frame.StartTime;
+                    break;
+                }
+            }
+
             waveProvider.SetPosition(position);
 
             audioOutputDevice.Play();

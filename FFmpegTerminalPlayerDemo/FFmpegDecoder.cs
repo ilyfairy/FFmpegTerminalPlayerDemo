@@ -337,15 +337,15 @@ public class FFmpegDecoder : IDisposable
             ffmpeg.avcodec_flush_buffers(_videoDecoderContext);
         }
 
-        if (_audioStream != null) // 优先seek音频, 不然的话seek视频流之后读取会出现很多旧的音频帧
-        {
-            var pts = (long)(position.TotalSeconds * _audioStream->time_base.Den / _audioStream->time_base.Num);
-            ffmpeg.av_seek_frame(_formatContext, _audioStream->index, pts, (int)AVSEEK_FLAG.Backward);
-        }
-        else if (_videoStream != null)
+        if (_videoStream != null)
         {
             var pts = (long)(position.TotalSeconds * _videoStream->time_base.Den / _videoStream->time_base.Num);
             ffmpeg.av_seek_frame(_formatContext, _videoStream->index, pts, (int)AVSEEK_FLAG.Backward);
+        }
+        else if (_audioStream != null)
+        {
+            var pts = (long)(position.TotalSeconds * _audioStream->time_base.Den / _audioStream->time_base.Num);
+            ffmpeg.av_seek_frame(_formatContext, _audioStream->index, pts, (int)AVSEEK_FLAG.Backward);
         }
 
         ffmpeg.av_packet_unref(_packet);
